@@ -8,13 +8,19 @@ Student::Student(const std::string &name, const std::string &faculty, int facult
         name), faculty(faculty), facultyNumber(facultyNumber), group(groupNumber) {}
 
 std::ostream &operator<<(std::ostream &os, const Student &student) {
-    os << "Name: " << student.name << "; Faculty: " << student.faculty << "; Faculty number: " << student.facultyNumber
-       << "; Group: " << student.group;
+    os << student.name << " | " << student.faculty << " | " << student.facultyNumber << " | " << student.group;
     return os;
 }
 
 Student::Student() {
+    name = "";
+    faculty = "";
+    facultyNumber = 0;
+    group = 0;
+}
 
+Student::Student(bool wizard) {
+    // Verifies name until it's entered correctly
     while (true) {
         cout << "Name: ";
         std::string newName;
@@ -23,6 +29,7 @@ Student::Student() {
             break;
     }
 
+    // Verifies faculty until it's entered correctly
     while (true) {
         cout << "Faculty: ";
         std::string newFaculty;
@@ -31,6 +38,7 @@ Student::Student() {
             break;
     }
 
+    // Verifies faculty number until it's entered correctly
     while (true) {
         cout << "Faculty number: ";
         unsigned int newFacultyNumber;
@@ -39,6 +47,7 @@ Student::Student() {
             break;
     }
 
+    // Verifies group until it's entered correctly
     while (true) {
         cout << "Group: ";
         unsigned short newGroup;
@@ -47,6 +56,8 @@ Student::Student() {
             break;
     }
 }
+
+Student::~Student() = default;
 
 const std::string &Student::getName() const {
     return name;
@@ -63,12 +74,14 @@ bool Student::setName(const std::string &name) {
         if (ch == ' ') countSpaces++;
         if (!isalpha(ch) and !isspace(ch)) errorInName = true;
     }
+    // Returns false if only the first name is given (no spaces found)
     if (countSpaces == 0) {
         cout << "[ERROR] Please enter full name. No name or only first name was given." << endl;
         return false;
     }
+    // Returns false if there are special characters in the name
     if (errorInName) {
-        cout << "Numbers or other special symbols were found in name. Name can contain only letters." << endl;
+        cout << "[ERROR] Numbers or other special symbols were found in name. Name can contain only letters and spaces." << endl;
         return false;
     }
     Student::name = name;
@@ -110,7 +123,46 @@ unsigned int Student::getFacultyNumber() const {
 }
 
 bool Student::setFacultyNumber(unsigned int facultyNumber) {
-    // TODO: Check if faculty number is between 100000000 and 999999999
+    // Verifies that faculty number is above 0
+    if (facultyNumber <= 0) {
+        cout << "[ERROR] Faculty number cannot be smaller than 0" << endl;
+        return false;
+    }
+
     Student::facultyNumber = facultyNumber;
     return true;
 }
+
+void Student::saveBinary(std::ofstream &file) {
+    int size;
+
+    size = name.size();
+    file.write(reinterpret_cast<const char *>(&size), sizeof(int));
+    file.write(name.c_str(), size*sizeof(char));
+
+    size = faculty.size();
+    file.write(reinterpret_cast<const char *>(&size), sizeof(int));
+    file.write(faculty.c_str(), size*sizeof(char));
+
+    file.write(reinterpret_cast<char*>(&facultyNumber), sizeof(facultyNumber));
+
+    file.write(reinterpret_cast<char*>(&group), sizeof(group));
+}
+
+void Student::loadBinary(std::ifstream &file) {
+    int size;
+
+    file.read(reinterpret_cast<char *> (&size), sizeof(int));
+    name.resize(size);
+    file.read(&name[0], size*sizeof(char));
+
+    file.read(reinterpret_cast<char *> (&size), sizeof(int));
+    faculty.resize(size);
+    file.read(&faculty[0], size*sizeof(char));
+
+    file.read(reinterpret_cast<char *>(&facultyNumber), sizeof(facultyNumber));
+
+    file.read(reinterpret_cast<char *>(&group), sizeof(group));
+}
+
+

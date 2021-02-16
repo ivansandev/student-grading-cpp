@@ -2,6 +2,7 @@
 #include <vector>
 #include <iterator>
 #include <map>
+#include <fstream>
 #include "StudentGrading.h"
 
 
@@ -23,11 +24,20 @@ void maxAverageGrade(std::vector<StudentGrading*> &students, short group);
 void print(std::vector<StudentGrading*> &students);
 void printGroup(std::vector<StudentGrading*> &students);
 
+// SAVING/LOADING DATA TO/FROM BINARY FILE
+void save(std::vector<StudentGrading*> &students, std::string filename);
+void load(std::vector<StudentGrading*> &students,  std::string filename);
+
+
 int main() {
+    // Used for storing all data in students
     std::vector<StudentGrading*> students;
+
+    load(students, "data.bin");
 
     menu(students);
 
+    save(students, "data.bin");
     for (StudentGrading* student : students) {
         delete student;
     }
@@ -39,11 +49,11 @@ void menu(std::vector<StudentGrading*> &students) {
 
     short choice;
     while (run) {
-        cout << "1. Show\n"
-                "2. Add\n"
-                "3. Remove\n"
-                "4. Change\n"
-                "0. Exit\n";
+        cout << "1. Show students\n"
+                "2. Add student\n"
+                "3. Remove student\n"
+                "0. Exit\n"
+                "Choice: ";
         cin >> choice;
         switch (choice) {
             case 1: {
@@ -52,16 +62,13 @@ void menu(std::vector<StudentGrading*> &students) {
             }
             case 2: {
                 cin.ignore();
-                students.push_back(new StudentGrading());
+                students.push_back(new StudentGrading(true));
+                save(students, "data.bin");
                 break;
             }
             case 3: {
                 removeMenu(students);
-                break;
-            }
-            case 4: {
-                // TODO
-//                changeMenu();
+                save(students, "data.bin");
                 break;
             }
             case 0: {
@@ -120,7 +127,6 @@ void showMenu(std::vector<StudentGrading*> &students) {
 }
 
 void removeMenu(std::vector<StudentGrading*> &students) {
-    // TODO : Test removing student
     cout << "1. By name\n"
             "2. By faculty number\n"
             "0. Back\n";
@@ -129,33 +135,44 @@ void removeMenu(std::vector<StudentGrading*> &students) {
     switch (choice) {
         case 1: {
             std::string nameToRemove;
+            std::vector<int> indexToRemove;
             cout << "Name: ";
             cin.ignore();
             getline(cin, nameToRemove);
             if (nameToRemove.length()>0) {
-                for (StudentGrading *student : students) {
-                    if (student->getName() == nameToRemove) {
-                        delete student;
-                        cout << "Student removed.";
-                        break;
+                for (int i = 0; i < students.size(); i++) {
+                    if (students[i]->getName() == nameToRemove) {
+                        indexToRemove.push_back(i);
                     }
                 }
             }
+            if (!indexToRemove.empty()) {
+                for (auto& index : indexToRemove) {
+                    students.erase(students.begin()+index);
+                }
+            }
             else {
-                cout << "No name given. Returning..." << endl;
+                cout << "No users found with name " << nameToRemove << endl;
             }
             break;
         }
         case 2: {
             int facultyNumberToRemove;
+            std::vector<int> indexToRemove;
             cout << "Faculty number: ";
             cin >> facultyNumberToRemove;
-            for (StudentGrading *student : students) {
-                if (student->getFacultyNumber() == facultyNumberToRemove) {
-                    delete student;
-                    cout << "Student removed.";
-                    break;
+            for (int i = 0; i < students.size(); i++) {
+                if (students[i]->getFacultyNumber() == facultyNumberToRemove) {
+                    indexToRemove.push_back(i);
                 }
+            }
+            if (!indexToRemove.empty()) {
+                for (auto& index : indexToRemove) {
+                    students.erase(students.begin()+index);
+                }
+            }
+            else {
+                cout << "No users found with faculty number " << facultyNumberToRemove << endl;
             }
             break;
         }
@@ -186,9 +203,9 @@ void printGroup(std::vector<StudentGrading*> &students) {
 }
 
 void averageGradePerGroup(std::vector<StudentGrading*> &students) {
-    // TODO : Comments
-    std::map<int, float> sumGrades;
-    std::map<int, int> numGrades;
+    // Returns the average grade for all groups
+    std::map<int, float> sumGrades; // used for getting the sum of all grades per in (<group>, <sum_of_grades>) form
+    std::map<int, int> numGrades;   // used for getting the number of grades per group in (<group>, <number_of_grades>) form
 
     for (StudentGrading *student : students) {
         unsigned short group = student->getGroup();
@@ -235,6 +252,8 @@ void maxAverageGrade(std::vector<StudentGrading*> &students, short group) {
     int counter = 0;
     StudentGrading* maxGradeStudent;
 
+    // Goes over all students, checks if the group is the one given in the parameter
+    // and checks which student has the highest grade
     for (auto& student : students) {
         if (student->getGroup() == group) {
             if (student->getAverageGrade() > maxAvgGrade) {
@@ -250,5 +269,41 @@ void maxAverageGrade(std::vector<StudentGrading*> &students, short group) {
     }
     else {
         cout << "No students found in group " << group << endl;
+    }
+}
+
+void save(std::vector<StudentGrading*> &students, std::string filename) {
+    std::ofstream file;
+    file.open(filename, std::ios::out | std::ios::binary);
+
+    // Verifies binary file
+    if (file.good()) {
+        int size = students.size();
+        file.write(reinterpret_cast<char *> (&size), sizeof(int));
+        for (auto& student : students) {
+            student->saveBinary(file);
+        }
+        file.close();
+    }
+    else {
+        cout << "[ERROR] Cannot open file " << filename << " for writing." << endl;
+    }
+}
+
+void load(std::vector<StudentGrading*> &students,  std::string filename) {
+    std::ifstream file;
+    file.open(filename, std::ios::in | std::ios::binary);
+    if (file.good()) {
+        int size = 0;
+        file.read(reinterpret_cast<char *>(&size), sizeof(int));
+        for (int i=0; i < size; i++) {
+            students.push_back(new StudentGrading());
+            students[i]->loadBinary(file);
+        }
+        file.close();
+    }
+    else {
+        cout << "[WARNING] Data file " << filename << " not found for reading." << endl;
+        cout << "If it's the first the running the program, ignore this message." << endl << endl;
     }
 }

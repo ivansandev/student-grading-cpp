@@ -5,6 +5,8 @@
 #include <iostream>
 #include <string>
 #include <ostream>
+#include <fstream>
+
 using std::cout;
 using std::cin;
 using std::endl;
@@ -22,10 +24,20 @@ private:
 public:
     // Constructor
     Student();
+    Student(bool wizard);
+    // Destructor
+    virtual ~Student();
+
     Student(const std::string &name, const std::string &faculty, int facultyNumber, short groupNumber);
+
+    virtual float getAverageGrade(bool printMissingGrades) = 0;
 
     // Overloading << operator
     friend std::ostream &operator<<(std::ostream &os, const Student &student);
+
+    // Reading/writing to file
+    virtual void saveBinary(std::ofstream &file);
+    virtual void loadBinary(std::ifstream &file);
 
     // GETTERS / SETTERS
     const std::string &getName() const;

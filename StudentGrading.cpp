@@ -4,14 +4,14 @@
 
 #include "StudentGrading.h"
 
-StudentGrading::StudentGrading() : Student() {
+StudentGrading::StudentGrading(bool wizard) : Student(wizard) {
     cout << "Enter grades for 1st semester" << endl;
     setGrades(grades_1st_semester);
     cout << "Enter grades for 2nd semester" << endl;
     setGrades(grades_2nd_semester);
 }
 
-void StudentGrading::setGrades(int *grades) {
+void StudentGrading::setGrades(unsigned short *grades) {
     // Input wizard that goes over every grade for a semester
     // Checks if value entered by user is between 2 and 6 (or 0 for 'still not graded subject')
     for (int i=0; i<SUBJECTS_PER_SEMESTER; i++) {
@@ -85,12 +85,38 @@ std::ostream &operator<<(std::ostream &os, const StudentGrading &grading) {
     return os;
 }
 
-void StudentGrading::saveBinary() {
-    // TODO : Save to binary file
+void StudentGrading::saveBinary(std::ofstream &file) {
+    Student::saveBinary(file);
+
+    for (auto& grade : grades_1st_semester) {
+        file.write(reinterpret_cast<const char *>(&grade), sizeof(unsigned short));
+    }
+    for (auto& grade : grades_2nd_semester) {
+        file.write(reinterpret_cast<const char *>(&grade), sizeof(unsigned short));
+    }
 }
 
-void StudentGrading::loadBinary() {
-    // TODO : Load from binary file
+void StudentGrading::loadBinary(std::ifstream &file) {
+    Student::loadBinary(file);
+
+    for (auto& grade : grades_1st_semester) {
+        file.read(reinterpret_cast<char *>(&grade), sizeof(unsigned short));
+    }
+    for (auto& grade : grades_2nd_semester) {
+        file.read(reinterpret_cast<char *>(&grade), sizeof(unsigned short));
+    }
 }
+
+StudentGrading::StudentGrading() {
+    for (auto& grade : grades_1st_semester) {
+        grade = 0;
+    }
+    for (auto& grade : grades_2nd_semester) {
+        grade = 0;
+    }
+}
+
+StudentGrading::~StudentGrading() = default;
+
 
 
