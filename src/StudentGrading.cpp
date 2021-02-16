@@ -2,7 +2,7 @@
 // Created by Ivan Sandev on 2/14/21.
 //
 
-#include "StudentGrading.h"
+#include "../include/StudentGrading.h"
 
 StudentGrading::StudentGrading() : Student() {
     cout << "Enter grades for 1st semester" << endl;

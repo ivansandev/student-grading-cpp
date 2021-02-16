@@ -2,7 +2,7 @@
 // Created by Ivan Sandev on 2/16/21.
 //
 
-#include "StudentPrinter.h"
+#include "../include/StudentPrinter.h"
 
 // Prints all students from all groups
 void StudentPrinter::printStudents(std::vector<StudentGrading *> &students) {

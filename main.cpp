@@ -1,9 +1,9 @@
 #include <iostream>
 #include <vector>
 #include <iterator>
-#include "StudentGrading.h"
-#include "StudentPrinter.h"
-#include "StudentFileManager.h"
+#include "include/StudentGrading.h"
+#include "include/StudentPrinter.h"
+#include "include/StudentFileManager.h"
 
 using std::cout;
 using std::cin;

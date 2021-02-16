@@ -2,7 +2,7 @@
 // Created by Ivan Sandev on 2/16/21.
 //
 
-#include "StudentFileManager.h"
+#include "../include/StudentFileManager.h"
 
 // Save data to binary file
 void StudentFileManager::save(std::vector<StudentGrading *> &students, std::string filename) {

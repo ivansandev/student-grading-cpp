@@ -2,7 +2,7 @@
 // Created by Ivan Sandev on 2/14/21.
 //
 
-#include "Student.h"
+#include "../include/Student.h"
 
 // Default constructor, initializes wizard for inputting data through the console
 Student::Student() {
