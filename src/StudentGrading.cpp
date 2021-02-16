@@ -5,11 +5,21 @@
 #include "../include/StudentGrading.h"
 
 StudentGrading::StudentGrading() : Student() {
-    cout << "Enter grades for 1st semester" << endl;
+    cout << "Grades should be from 2 to 6, and 0 for 'still not graded'." << endl;
+    cout << "Enter grades for 1st semester:" << endl;
     setGrades(grades_1st_semester);
-    cout << "Enter grades for 2nd semester" << endl;
+    cout << "Enter grades for 2nd semester:" << endl;
     setGrades(grades_2nd_semester);
 }
+
+
+// CONSTRUCTOR - used for initializing data from binary file
+StudentGrading::StudentGrading(std::ifstream &file) : Student(file) {
+    StudentGrading::loadBinary(file);
+}
+
+// DESTRUCTOR
+StudentGrading::~StudentGrading() = default;
 
 void StudentGrading::setGrades(unsigned short *grades) {
     // Input wizard that goes over every grade for a semester
@@ -31,6 +41,9 @@ void StudentGrading::setGrades(unsigned short *grades) {
 }
 
 float StudentGrading::getAverageGrade(bool printMissingGrades) {
+    // Gets average grade for student
+    // Returns 0 if student still has no grades
+
     // printMissingGrades is OPTIONAL:
     //     If it's true, it checks how many grades a student is missing
     //     (use case: when applying for scholarship, there should be no missing grades)
@@ -91,6 +104,8 @@ std::ostream &operator<<(std::ostream &os, const StudentGrading &grading) {
 }
 
 void StudentGrading::saveBinary(std::ofstream &file) {
+    // Saves data to binary file
+    // PARAMS: File pointer to binary file opened for writing
     Student::saveBinary(file);
 
     for (auto& grade : grades_1st_semester) {
@@ -102,7 +117,11 @@ void StudentGrading::saveBinary(std::ofstream &file) {
 }
 
 void StudentGrading::loadBinary(std::ifstream &file) {
+    // Loads data from binary file
+    // PARAMS: file pointer to binary file opened for reading
+
     // parent constructor calls for Student::loadBinary(file) so there's no need to call here
+
     for (auto& grade : grades_1st_semester) {
         file.read(reinterpret_cast<char *>(&grade), sizeof(unsigned short));
     }
@@ -111,11 +130,14 @@ void StudentGrading::loadBinary(std::ifstream &file) {
     }
 }
 
-StudentGrading::StudentGrading(std::ifstream &file) : Student(file) {
-    StudentGrading::loadBinary(file);
+// GETTERS
+const unsigned short *StudentGrading::getGrades1StSemester() const {
+    return grades_1st_semester;
+}
+const unsigned short *StudentGrading::getGrades2NdSemester() const {
+    return grades_2nd_semester;
 }
 
-StudentGrading::~StudentGrading() = default;
 
 
 

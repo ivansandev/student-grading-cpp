@@ -4,7 +4,7 @@
 
 #include "../include/Student.h"
 
-// Default constructor, initializes wizard for inputting data through the console
+// DEFAULT CONSTRUCTOR - initializes wizard for inputting values through the console
 Student::Student() {
     // Verifies name until it's entered correctly
     while (true) {
@@ -40,23 +40,73 @@ Student::Student() {
         cin >> newGroup;
         if (setGroup(newGroup))
             break;
+        else {
+            cin.clear();
+            cin.ignore();
+        }
     }
 }
 
-Student::Student(const std::string &name, const std::string &faculty, int facultyNumber, short groupNumber) : name(
-        name), faculty(faculty), facultyNumber(facultyNumber), group(groupNumber) {}
-
-// Overloading operator <<
+// OVERLOADING OPERATOR <<
 std::ostream &operator<<(std::ostream &os, const Student &student) {
     os << student.name << " | " << student.faculty << " | " << student.facultyNumber << " | " << student.group;
     return os;
 }
 
+// CONSTRUCTOR - used for initializing data from binary file
 Student::Student(std::ifstream &file) {
     Student::loadBinary(file);
 }
 
+// DESTRUCTOR
 Student::~Student() = default;
+
+// WRITE CLASS DATA TO FILE
+void Student::saveBinary(std::ofstream &file) {
+    int size;
+
+    // Writes size of 'name' string and writes string to file
+    size = name.size();
+    file.write(reinterpret_cast<const char *>(&size), sizeof(int));
+    file.write(name.c_str(), size * sizeof(char));
+
+    // Writes size of 'faculty' string and writes string to file
+    size = faculty.size();
+    file.write(reinterpret_cast<const char *>(&size), sizeof(int));
+    file.write(faculty.c_str(), size * sizeof(char));
+
+    // Writes 'facultyNumber' to file
+    file.write(reinterpret_cast<char *>(&facultyNumber), sizeof(facultyNumber));
+
+    // Writes 'group' to file
+    file.write(reinterpret_cast<char *>(&group), sizeof(group));
+}
+
+// READ CLASS DATA FROM FILE
+void Student::loadBinary(std::ifstream &file) {
+    // Gets data from open binary file to the object members
+    int size;
+
+    // Loads size of 'name' string and loads 'name' from file
+    file.read(reinterpret_cast<char *> (&size), sizeof(int));
+    name.resize(size);
+    file.read(&name[0], size * sizeof(char));
+
+    // Loads size of 'faculty' string and loads 'faculty' from file
+    file.read(reinterpret_cast<char *> (&size), sizeof(int));
+    faculty.resize(size);
+    file.read(&faculty[0], size * sizeof(char));
+
+    // Loads 'facultyNumber' from file
+    file.read(reinterpret_cast<char *>(&facultyNumber), sizeof(facultyNumber));
+
+    // Loads 'group' from file
+    file.read(reinterpret_cast<char *>(&group), sizeof(group));
+}
+
+// --------------------
+// GETTERS / SETTERS - also verify data input from user when object is created
+// --------------------
 
 const std::string &Student::getName() const {
     return name;
@@ -133,46 +183,7 @@ bool Student::setFacultyNumber(unsigned int facultyNumber) {
     return true;
 }
 
-void Student::saveBinary(std::ofstream &file) {
-    int size;
 
-    // Writes size of 'name' string and writes string to file
-    size = name.size();
-    file.write(reinterpret_cast<const char *>(&size), sizeof(int));
-    file.write(name.c_str(), size * sizeof(char));
-
-    // Writes size of 'faculty' string and writes string to file
-    size = faculty.size();
-    file.write(reinterpret_cast<const char *>(&size), sizeof(int));
-    file.write(faculty.c_str(), size * sizeof(char));
-
-    // Writes 'facultyNumber' to file
-    file.write(reinterpret_cast<char *>(&facultyNumber), sizeof(facultyNumber));
-
-    // Writes 'group' to file
-    file.write(reinterpret_cast<char *>(&group), sizeof(group));
-}
-
-void Student::loadBinary(std::ifstream &file) {
-    // Gets data from open binary file to the object members
-    int size;
-
-    // Loads size of 'name' string and loads 'name' from file
-    file.read(reinterpret_cast<char *> (&size), sizeof(int));
-    name.resize(size);
-    file.read(&name[0], size * sizeof(char));
-
-    // Loads size of 'faculty' string and loads 'faculty' from file
-    file.read(reinterpret_cast<char *> (&size), sizeof(int));
-    faculty.resize(size);
-    file.read(&faculty[0], size * sizeof(char));
-
-    // Loads 'facultyNumber' from file
-    file.read(reinterpret_cast<char *>(&facultyNumber), sizeof(facultyNumber));
-
-    // Loads 'group' from file
-    file.read(reinterpret_cast<char *>(&group), sizeof(group));
-}
 
 
 

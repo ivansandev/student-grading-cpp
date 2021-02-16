@@ -22,21 +22,22 @@ private:
     unsigned int facultyNumber;
     unsigned short group;
 public:
-    // Constructor
+    // DEFAULT CONSTRUCTOR - initializes wizard for inputting values through the command line
     Student();
+    // CONSTRUCTOR - used for initializing data from binary file
     explicit Student(std::ifstream &file);
-    // Destructor
+    // DESTRUCTOR
     virtual ~Student();
 
-    Student(const std::string &name, const std::string &faculty, int facultyNumber, short groupNumber);
-
+    // PURE VIRTUAL FUNCTION - Student class is virtual
     virtual float getAverageGrade(bool printMissingGrades) = 0;
 
-    // Overloading << operator
+    // OVERLOADING OPERATOR <<
     friend std::ostream &operator<<(std::ostream &os, const Student &student);
 
-    // Reading/writing to file
+    // WRITE CLASS DATA TO FILE
     virtual void saveBinary(std::ofstream &file);
+    // READ CLASS DATA FROM FILE
     virtual void loadBinary(std::ifstream &file);
 
     // GETTERS / SETTERS

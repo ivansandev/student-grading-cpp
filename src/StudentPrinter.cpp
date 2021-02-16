@@ -13,7 +13,7 @@ void StudentPrinter::printStudents(std::vector<StudentGrading *> &students) {
         ++counter;
     }
     if (counter == 0)
-        cout << "No students found." << endl;
+        cout << endl << "No students found." << endl;
     cout << "------------------------------------------" << endl;
 }
 
@@ -31,7 +31,7 @@ void StudentPrinter::printGroup(std::vector<StudentGrading *> &students) {
         }
     }
     if (counter == 0)
-        cout << "No students found in group " << group << endl;
+        cout << endl <<  "No students found in group " << group << endl;
     cout << "------------------------------------------" << endl;
 }
 

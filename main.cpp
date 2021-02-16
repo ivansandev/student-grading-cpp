@@ -92,6 +92,8 @@ void showMenu(std::vector<StudentGrading *> &students) {
             "0. Back\n"
             "Choice: ";
     int choice;
+    cin.clear();
+    cin.ignore();
     cin >> choice;
     switch (choice) {
         case 1: {
@@ -118,6 +120,9 @@ void showMenu(std::vector<StudentGrading *> &students) {
             short group;
             cin >> group;
             StudentPrinter::printMaxAverageGrade(students, group);
+            break;
+        }
+        case 0: {
             break;
         }
         default: {
