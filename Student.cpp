@@ -4,22 +4,8 @@
 
 #include "Student.h"
 
-Student::Student(const std::string &name, const std::string &faculty, int facultyNumber, short groupNumber) : name(
-        name), faculty(faculty), facultyNumber(facultyNumber), group(groupNumber) {}
-
-std::ostream &operator<<(std::ostream &os, const Student &student) {
-    os << student.name << " | " << student.faculty << " | " << student.facultyNumber << " | " << student.group;
-    return os;
-}
-
+// Default constructor, initializes wizard for inputting data through the console
 Student::Student() {
-    name = "";
-    faculty = "";
-    facultyNumber = 0;
-    group = 0;
-}
-
-Student::Student(bool wizard) {
     // Verifies name until it's entered correctly
     while (true) {
         cout << "Name: ";
@@ -57,6 +43,19 @@ Student::Student(bool wizard) {
     }
 }
 
+Student::Student(const std::string &name, const std::string &faculty, int facultyNumber, short groupNumber) : name(
+        name), faculty(faculty), facultyNumber(facultyNumber), group(groupNumber) {}
+
+// Overloading operator <<
+std::ostream &operator<<(std::ostream &os, const Student &student) {
+    os << student.name << " | " << student.faculty << " | " << student.facultyNumber << " | " << student.group;
+    return os;
+}
+
+Student::Student(std::ifstream &file) {
+    Student::loadBinary(file);
+}
+
 Student::~Student() = default;
 
 const std::string &Student::getName() const {
@@ -70,7 +69,7 @@ bool Student::setName(const std::string &name) {
     //     and there are only alphabet characters in name
     int countSpaces = 0;
     bool errorInName = false;
-    for(char ch:name) {
+    for (char ch:name) {
         if (ch == ' ') countSpaces++;
         if (!isalpha(ch) and !isspace(ch)) errorInName = true;
     }
@@ -81,7 +80,8 @@ bool Student::setName(const std::string &name) {
     }
     // Returns false if there are special characters in the name
     if (errorInName) {
-        cout << "[ERROR] Numbers or other special symbols were found in name. Name can contain only letters and spaces." << endl;
+        cout << "[ERROR] Numbers or other special symbols were found in name. Name can contain only letters and spaces."
+             << endl;
         return false;
     }
     Student::name = name;
@@ -108,7 +108,7 @@ unsigned short Student::getGroup() const {
 }
 
 bool Student::setGroup(unsigned short group) {
-    // Returns TRUE if group number is between 1 and MAX_GROUP_NUMBER
+    // Returns TRUE if group number is set between 1 and MAX_GROUP_NUMBER
     // otherwise returns FALSE
     if (group <= 0 || group >= MAX_GROUP_NUMBER) {
         cout << "Group number should be between 1 and " << MAX_GROUP_NUMBER << endl;
@@ -123,7 +123,7 @@ unsigned int Student::getFacultyNumber() const {
 }
 
 bool Student::setFacultyNumber(unsigned int facultyNumber) {
-    // Verifies that faculty number is above 0
+    // Returns TRUE only if facultyNumber is set above 0
     if (facultyNumber <= 0) {
         cout << "[ERROR] Faculty number cannot be smaller than 0" << endl;
         return false;
@@ -136,33 +136,43 @@ bool Student::setFacultyNumber(unsigned int facultyNumber) {
 void Student::saveBinary(std::ofstream &file) {
     int size;
 
+    // Writes size of 'name' string and writes string to file
     size = name.size();
     file.write(reinterpret_cast<const char *>(&size), sizeof(int));
-    file.write(name.c_str(), size*sizeof(char));
+    file.write(name.c_str(), size * sizeof(char));
 
+    // Writes size of 'faculty' string and writes string to file
     size = faculty.size();
     file.write(reinterpret_cast<const char *>(&size), sizeof(int));
-    file.write(faculty.c_str(), size*sizeof(char));
+    file.write(faculty.c_str(), size * sizeof(char));
 
-    file.write(reinterpret_cast<char*>(&facultyNumber), sizeof(facultyNumber));
+    // Writes 'facultyNumber' to file
+    file.write(reinterpret_cast<char *>(&facultyNumber), sizeof(facultyNumber));
 
-    file.write(reinterpret_cast<char*>(&group), sizeof(group));
+    // Writes 'group' to file
+    file.write(reinterpret_cast<char *>(&group), sizeof(group));
 }
 
 void Student::loadBinary(std::ifstream &file) {
+    // Gets data from open binary file to the object members
     int size;
 
+    // Loads size of 'name' string and loads 'name' from file
     file.read(reinterpret_cast<char *> (&size), sizeof(int));
     name.resize(size);
-    file.read(&name[0], size*sizeof(char));
+    file.read(&name[0], size * sizeof(char));
 
+    // Loads size of 'faculty' string and loads 'faculty' from file
     file.read(reinterpret_cast<char *> (&size), sizeof(int));
     faculty.resize(size);
-    file.read(&faculty[0], size*sizeof(char));
+    file.read(&faculty[0], size * sizeof(char));
 
+    // Loads 'facultyNumber' from file
     file.read(reinterpret_cast<char *>(&facultyNumber), sizeof(facultyNumber));
 
+    // Loads 'group' from file
     file.read(reinterpret_cast<char *>(&group), sizeof(group));
 }
+
 
 

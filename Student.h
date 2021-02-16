@@ -24,7 +24,7 @@ private:
 public:
     // Constructor
     Student();
-    Student(bool wizard);
+    explicit Student(std::ifstream &file);
     // Destructor
     virtual ~Student();
 

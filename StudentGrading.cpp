@@ -4,7 +4,7 @@
 
 #include "StudentGrading.h"
 
-StudentGrading::StudentGrading(bool wizard) : Student(wizard) {
+StudentGrading::StudentGrading() : Student() {
     cout << "Enter grades for 1st semester" << endl;
     setGrades(grades_1st_semester);
     cout << "Enter grades for 2nd semester" << endl;
@@ -55,15 +55,20 @@ float StudentGrading::getAverageGrade(bool printMissingGrades) {
         }
     }
 
-    // Getting the sum of all grades for both semesters
+    // Getting the sum of all grades and excluding values '0' which means the subject is still not graded
     int total = 0;
+    int numGrades = 0;
     for (int i = 0; i < SUBJECTS_PER_SEMESTER; i++) {
         total += grades_1st_semester[i];
+        if (grades_1st_semester[i] != 0) numGrades++;
         total += grades_2nd_semester[i];
+        if (grades_2nd_semester[i] != 0) numGrades++;
     }
     // Returning the average grade for both semesters
-    // (float) casting is used because member 'total' is an integer
-    return (float) total / (SUBJECTS_PER_SEMESTER * 2);
+    if (numGrades > 0)
+        return (float) total / (float) numGrades;
+    else
+        return 0;
 }
 
 std::ostream &operator<<(std::ostream &os, const StudentGrading &grading) {
@@ -97,8 +102,7 @@ void StudentGrading::saveBinary(std::ofstream &file) {
 }
 
 void StudentGrading::loadBinary(std::ifstream &file) {
-    Student::loadBinary(file);
-
+    // parent constructor calls for Student::loadBinary(file) so there's no need to call here
     for (auto& grade : grades_1st_semester) {
         file.read(reinterpret_cast<char *>(&grade), sizeof(unsigned short));
     }
@@ -107,13 +111,8 @@ void StudentGrading::loadBinary(std::ifstream &file) {
     }
 }
 
-StudentGrading::StudentGrading() {
-    for (auto& grade : grades_1st_semester) {
-        grade = 0;
-    }
-    for (auto& grade : grades_2nd_semester) {
-        grade = 0;
-    }
+StudentGrading::StudentGrading(std::ifstream &file) : Student(file) {
+    StudentGrading::loadBinary(file);
 }
 
 StudentGrading::~StudentGrading() = default;

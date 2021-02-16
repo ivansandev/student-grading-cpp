@@ -16,7 +16,7 @@ private:
 public:
     // Print menu and get parameters for every member of class
     StudentGrading();
-    StudentGrading(bool wizard);
+    explicit StudentGrading(std::ifstream &file);
     virtual ~StudentGrading();
 
     float getAverageGrade(bool printMissingGrades = false);
